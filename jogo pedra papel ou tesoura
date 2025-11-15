@@ -1,0 +1,111 @@
+using System;
+using System.Numerics;
+using System.Security.Cryptography.X509Certificates;
+
+namespace jogoPedraPapelTesoura
+{
+    class Codigo
+    {
+        static void Main(String[] inicio)   
+        {
+            Jogo jogo = new Jogo();
+            jogo.Iniciar();
+        }
+    }
+
+    class Jogo
+    {
+        public Player Player1;
+        public Player Player2;
+
+        public Jogo()
+        {
+            Player1 = new Player("Player1");
+            Player2 = new Player("IA");
+        }
+
+        public void Iniciar()
+        {
+            Console.WriteLine("ola esse eo jogo pedra papel tesoura");
+
+            int vitoriasPlayer1 = 0;
+            int vitoriasIA = 0;
+
+            while (vitoriasPlayer1 < 2 && vitoriasIA < 2)
+            {
+                Player1.Escolheropcao();
+                Player2.EscolherIa();
+
+                String resultado = VencedorResultado(Player1.Escolher, Player2.Escolher);
+                Console.WriteLine("resultado da partida: " + resultado);
+
+                if (resultado == "Player 1 venceu")
+                    vitoriasPlayer1++;
+                else if (resultado == "Ia venceu")
+                    vitoriasIA++;
+
+                Console.WriteLine($"Placar: Player1 {vitoriasPlayer1} x {vitoriasIA} IA\n");
+            }
+
+            if (vitoriasPlayer1 == 2)
+                Console.WriteLine("🏆 Player1 ganhou a melhor de 3");
+            else
+                Console.WriteLine("🏆 IA ganhou a melhor de 3");
+        }
+
+        public String VencedorResultado(String escolher1, string escolher2)
+        {
+            if (escolher1 == escolher2)
+            {
+                return "empate";
+            }
+
+            if ((escolher1 == "pedra" && escolher2 == "tesoura") ||
+                (escolher1 == "papel" && escolher2 == "pedra") ||
+                (escolher1 == "tesoura" && escolher2 == "papel"))
+            {
+                return "Player 1 venceu";
+            }
+            return "Ia venceu";
+        }
+
+    }
+
+    class Player
+    {
+        public String Nome { get; private set; }
+        public String Escolher { get; private set; }
+
+        public Player(String nome)
+        {
+            Nome = nome; 
+        }
+
+        public void Escolheropcao()
+        {
+            Console.WriteLine($"{Nome}, escolha: pedra, papel ou tesoura");
+           Console.WriteLine("")  ;
+            Escolher = Console.ReadLine().Trim().ToLower();
+
+            while (Escolher != "pedra" && Escolher != "papel" && Escolher != "tesoura") 
+            {
+                Console.WriteLine("erro tente novamente: pedra, papel ou tesoura");
+                Escolher = Console.ReadLine().Trim().ToLower();
+            }
+        }
+
+        public void EscolherIa()
+        {
+            Random random = new Random();
+            int escolha = random.Next(0, 3);
+
+            if (escolha == 0) Escolher = "pedra";      
+            else if (escolha == 1) Escolher = "papel";
+            else Escolher = "tesoura";                
+
+            Console.WriteLine($"{Nome} escolheu: {Escolher}");
+        }
+     
+    }
+    
+    }
