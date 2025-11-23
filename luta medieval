@@ -1,0 +1,158 @@
+using System;
+
+public interface Personagem
+{
+    string Nome { get; }
+    int Vida { get; set; }
+    int Ataque { get; }
+    int Defesa { get; }
+    int Golpe();
+}
+    //variaveis do mago
+public class Mago : Personagem
+{
+    public string Nome { get; private set; }
+    public int Vida { get; set; }
+    public int Ataque { get; private set; }
+    public int Defesa { get; private set; }
+
+    public Mago(string nome)
+    {
+        Nome = nome;
+        Vida = 100;
+        Ataque = 28;
+        Defesa = 7;
+    }
+
+    public int Golpe()
+    {
+        return Ataque;
+    }
+}
+    //variaveis do guerreiro
+public class Guerreiro : Personagem
+{
+    public string Nome { get; private set; }
+    public int Vida { get; set; }
+    public int Ataque { get; private set; }
+    public int Defesa { get; private set; }
+
+    public Guerreiro(string nome)
+    {
+        Nome = nome;
+        Vida = 120;
+        Ataque = 20;
+        Defesa = 14;
+    }
+
+    public int Golpe()
+    {
+        return Ataque;
+    }
+}
+
+class Codigo
+{
+    static void Main(string[] luta)
+    {
+        Personagem jogador = null;
+        Personagem cpu = null;
+
+        Console.WriteLine("Escolha seu personagem:");
+        Console.WriteLine("1 - Mago");
+        Console.WriteLine("2 - Guerreiro");
+        Console.Write("Digite: ");
+        string esc = Console.ReadLine();
+         //aqui verifica qual escolheu
+        if (esc == "1")
+        {
+            jogador = new Mago("Você Mago");
+            cpu = new Guerreiro("IA Guerreiro");
+        }
+        else
+        {
+            jogador = new Guerreiro("Você Guerreiro");
+            cpu = new Mago("IA Mago");
+        }
+         //aqui imprimi o que escolheu
+        Console.WriteLine();
+        Console.WriteLine($"Você escolheu {jogador.Nome}!");
+        Console.WriteLine($"A IA será: {cpu.Nome}");
+        Console.WriteLine();
+           //aqui setei o radon pra depois pra ia, e coloquei o bool pros turnos
+        Random rnd = new Random();
+        bool turnoJogador = true;
+         //aqui verifica a vida se e maior que 0, e imprimi seu turno e pega a açao do jogador
+        while (jogador.Vida > 0 && cpu.Vida > 0)
+        {
+            if (turnoJogador)
+            {
+                Console.WriteLine("Seu turno!");
+                Console.WriteLine("1 - Atacar");
+                Console.WriteLine("2 - Defender");
+                Console.Write("Escolha: ");
+                string acao = Console.ReadLine();
+                 //verifica a açao do jogador  se esta atacando
+                if (acao == "1") 
+                {
+                    int dano = jogador.Golpe() - cpu.Defesa;
+                    //if pra evitar dano negativo
+                    if (dano < 0) dano = 0;
+
+                    cpu.Vida -= dano;
+
+                    Console.WriteLine($"Você atacou! Causou {dano} de dano.");
+                }
+                else 
+                // se esta defendendo
+                {
+                    Console.WriteLine("Você está defendendo este turno.");
+                    jogador.Vida += 5; 
+                }
+            }
+            else
+            {
+                 //radom da ia se vai atacar ou defender
+                Console.WriteLine("Turno da ia");
+
+                int escolhaCpu = rnd.Next(1, 3); 
+                          // 1 para ataque
+                if (escolhaCpu == 1)
+                {
+                    int dano = cpu.Golpe() - jogador.Defesa;
+                    if (dano < 0) dano = 0;
+
+                    jogador.Vida -= dano;
+
+                    Console.WriteLine($"A IA atacou você! Dano causado: {dano}");
+                }
+                else
+                //2 para defender
+                {
+                    Console.WriteLine("A IA escolheu defender.");
+                    cpu.Vida += 5;
+                }
+            }
+             //imprimi a vida do jogador e da ia
+            Console.WriteLine();
+            Console.WriteLine($"Vida do Jogador: {jogador.Vida}");
+            Console.WriteLine($"Vida da ia: {cpu.Vida}");
+            Console.WriteLine("---------------------------");
+            //variavel de tempo deixa mais rapido ou mais lento
+            int tempoTurno = 800;
+            turnoJogador = !turnoJogador;
+           
+        }
+
+        Console.WriteLine();
+        Console.WriteLine("      RESULTADO     ");
+              //verifica quem venceu
+        if (jogador.Vida <= 0)
+            Console.WriteLine("A IA venceu!");
+        else
+            Console.WriteLine("Você venceu!!");
+
+        Console.WriteLine("Fim do jogo.");
+        Console.ReadLine();
+    }
+}
