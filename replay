@@ -1,0 +1,64 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class volta : MonoBehaviour
+{
+    private int tamanho = 0;
+    private Vector3[] fila = new Vector3[1000];
+    private int retorno = 0;
+
+    void Update()
+    {
+        Entrar();
+        Sair();
+    }
+
+    public void Entrar()
+    {
+        // estava gravando enquanto voltava testa return 
+        if (Input.GetKey(KeyCode.E))
+            return;
+
+        Vector3 novaPos = transform.position;
+
+        if (Input.GetKey(KeyCode.A))
+            novaPos += new Vector3(-6 * Time.deltaTime, 0f, 0f);
+
+        if (Input.GetKey(KeyCode.D))
+            novaPos += new Vector3(6 * Time.deltaTime, 0f, 0f);
+
+        if (Input.GetKey(KeyCode.W))
+            novaPos += new Vector3(0f, 6 * Time.deltaTime, 0f);
+
+        if (Input.GetKey(KeyCode.S))
+            novaPos += new Vector3(0f, -6 * Time.deltaTime, 0f);
+
+       
+        if (novaPos != transform.position)
+        {
+            transform.position = novaPos;
+
+           
+            if (tamanho < fila.Length)
+            {
+                fila[tamanho] = transform.position;
+                tamanho++;
+            }
+        }
+    }
+
+    public void Sair()
+    {
+        
+        if (Input.GetKey(KeyCode.E))
+        {
+            if (tamanho > 0)
+            {
+                tamanho--;
+                transform.position = fila[tamanho];
+            }
+        }
+    }
+}
