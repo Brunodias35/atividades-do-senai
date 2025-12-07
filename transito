@@ -1,0 +1,119 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class semafaro : MonoBehaviour
+{
+
+    enum EstadoSinal { Verde, Amarelo, Vermelho }
+    enum EstadoCarro { Andando, Parado }
+
+    public GameObject carroHor; 
+    public GameObject carroVert; 
+
+    GameObject carroH;
+    GameObject carroV;
+
+    EstadoSinal sinalHor = EstadoSinal.Verde;
+    EstadoSinal sinalVert = EstadoSinal.Vermelho;
+
+    EstadoCarro estadoH = EstadoCarro.Andando;
+    EstadoCarro estadoV = EstadoCarro.Parado;
+
+    float timer = 0f;
+    float tempoVerde = 4f;
+    float tempoAmarelo = 2f;
+    float velocidadeH = 4f;
+    float velocidadeV = 4f;
+
+    void Start()
+    {
+        carroH = Instantiate(carroHor, new Vector3(9f, -1.18f, 0f), Quaternion.identity);
+        carroV = Instantiate(carroVert, new Vector3(-0.24f, 6f, 0f), Quaternion.identity);
+    }
+
+    void Update()
+    {
+        timer += Time.deltaTime;
+        float ciclo = tempoVerde + tempoAmarelo + tempoVerde + tempoAmarelo; 
+        float t = timer % ciclo;
+
+     
+        if (t < tempoVerde)
+        {
+            sinalHor = EstadoSinal.Verde;
+        }
+        else if (t < tempoVerde + tempoAmarelo)
+        {
+            sinalHor = EstadoSinal.Amarelo;
+        }
+        else
+        {
+            sinalHor = EstadoSinal.Vermelho;
+        }
+
+       
+        if (t < tempoVerde + tempoAmarelo)
+        {
+            sinalVert = EstadoSinal.Vermelho;
+        }
+        else
+        {
+            sinalVert = EstadoSinal.Verde;
+        }
+
+        // controla os carros
+        estadoH = (sinalHor == EstadoSinal.Verde) ? EstadoCarro.Andando : EstadoCarro.Parado;
+        estadoV = (sinalVert == EstadoSinal.Verde) ? EstadoCarro.Andando : EstadoCarro.Parado;
+
+        if (estadoH == EstadoCarro.Andando)
+        {
+            carroH.transform.Translate(Vector3.left * velocidadeH * Time.deltaTime);
+        }
+
+        if (estadoV == EstadoCarro.Andando)
+        {
+            carroV.transform.Translate(Vector3.down * velocidadeV * Time.deltaTime);
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D col)
+    {
+        if (col.gameObject == carroH)
+        {
+            if (sinalHor == EstadoSinal.Verde)
+            {
+                estadoH = EstadoCarro.Andando;
+            }
+            else
+            {
+                estadoH = EstadoCarro.Parado;
+            }
+        }
+        else if (col.gameObject == carroV)
+        {
+            if (sinalVert == EstadoSinal.Verde)
+            {
+                estadoV = EstadoCarro.Andando;
+            }
+            else
+            {
+                estadoV = EstadoCarro.Parado;
+            }
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D col)
+    {
+        if (col.gameObject == carroH && sinalHor == EstadoSinal.Verde)
+        {
+            estadoH = EstadoCarro.Andando;
+        }                  
+        else if (col.gameObject == carroV && sinalVert == EstadoSinal.Verde)
+        {
+            estadoV = EstadoCarro.Andando;
+        }
+    }
+
+}
+    
