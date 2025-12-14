@@ -1,40 +1,154 @@
 using System;
-using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 
-Console.WriteLine("começo");
-Caminho caminho = new Caminho();
-caminho.Matriz();
-caminho.FilaAberta();
-caminho.FilaFechada();
-
-public class Caminho
+namespace ALGORITINO_A_ESTRELA
 {
-       int tamanhoDireita = 6;
-    int tamanhoBaixo = 3;
-    public void Matriz()
+    public class No
     {
-     
-    string[,] matriz = new string[5,5];
-   
-    for (int i = 0 ; i < matriz.GetLength(0);i++)
+        public int X, Y;
+        public int G, H;
+        public int F { get { return G + H; } }
+        public No PAI;
+
+        public No(int x, int y)
         {
-            for(int j =0;j < matriz.GetLength(1);j++)
-            {
-                Console.Write(matriz[i,j] = " x ");
-            }
-             Console.Write("\n");
+            X = x;
+            Y = y;
+            G = 0;
+            H = 0;
+            PAI = null;
         }
-        Console.WriteLine("fim");
     }
-  public void FilaAberta()
+
+    public class Algoritino
     {
-          List<Caminho> aberto = new List<Caminho>();
+        public static List<No> Caminho(No inicio, No fim, int[,] mapa)
+        {
+            List<No> aberta = new List<No> { inicio };
+            List<No> fechada = new List<No>();
+
+            while (aberta.Count > 0)
+            {
+                No atual = aberta.OrderBy(n => n.F).First();
+
+                if (atual.X == fim.X && atual.Y == fim.Y)
+                    return VoltaCaminho(atual);
+
+                aberta.Remove(atual);
+                fechada.Add(atual);
+
+                foreach (No vizinho in ObterVisinho(atual, mapa))
+                {
+                    if (fechada.Any(n => n.X == vizinho.X && n.Y == vizinho.Y))
+                        continue;
+
+                    int novoG = atual.G + 1;
+                    var existente = aberta.FirstOrDefault(n => n.X == vizinho.X && n.Y == vizinho.Y);
+
+                    if (existente == null)
+                    {
+                        vizinho.G = novoG;
+                        vizinho.H = Heuristica(vizinho, fim);
+                        vizinho.PAI = atual;
+                        aberta.Add(vizinho);
+                    }
+                    else if (novoG < existente.G)
+                    {
+                        existente.G = novoG;
+                        existente.PAI = atual;
+                    }
+                }
+            }
+            return null;
+        }
+
+        static int Heuristica(No atual, No destino)
+        {
+            return Math.Abs(atual.X - destino.X) + Math.Abs(atual.Y - destino.Y);
+        }
+
+        static List<No> ObterVisinho(No no, int[,] mapa)
+        {
+            List<No> vizinhos = new List<No>();
+            int largura = mapa.GetLength(1);
+            int altura = mapa.GetLength(0);
+
+            int[] dx = { 1, -1, 0, 0 };
+            int[] dy = { 0, 0, 1, -1 };
+
+            for (int i = 0; i < 4; i++)
+            {
+                int nx = no.X + dx[i];
+                int ny = no.Y + dy[i];
+
+                if (nx >= 0 && ny >= 0 && nx < largura && ny < altura && mapa[ny, nx] == 0)
+                {
+                    vizinhos.Add(new No(nx, ny));
+                }
+            }
+            return vizinhos;
+        }
+
+        static List<No> VoltaCaminho(No atual)
+        {
+            List<No> caminho = new List<No>();
+            while (atual != null)
+            {
+                caminho.Add(atual);
+                atual = atual.PAI;
+            }
+            caminho.Reverse();
+            return caminho;
+        }
     }
-     public void FilaFechada()
+
+    public class Programa
     {
-        
+        static void Main(string[] args)
+        {
+            int[,] mapa =
+            {
+                {0,0,0,0,0},
+                {0,1,1,1,0},
+                {0,0,0,0,1},
+                {1,0,1,0,0},
+                {0,0,0,0,0}
+            };
+
+            No inicio = new No(0, 0);
+            No fim = new No(4, 4);
+
+            List<No> caminho = Algoritino.Caminho(inicio, fim, mapa);
+            if (caminho == null)
+            {
+                Console.WriteLine("Caminho não encontrado!");
+                return;
+            }
+
+            ImprimirMapa(mapa, caminho, inicio, fim);
+            Console.ReadKey();
+        }
+
+        static void ImprimirMapa(int[,] mapa, List<No> caminho, No inicio, No fim)
+        {
+            for (int y = 0; y < mapa.GetLength(0); y++)
+            {
+                for (int x = 0; x < mapa.GetLength(1); x++)
+                {
+                    if (x == inicio.X && y == inicio.Y)
+                        Console.Write("S "); 
+                    else if (x == fim.X && y == fim.Y)
+                        Console.Write("F "); 
+                    else if (caminho.Any(n => n.X == x && n.Y == y))
+                        Console.Write("* "); 
+                    else if (mapa[y, x] == 1)
+                        Console.Write("| "); 
+                    else
+                        Console.Write(". "); 
+                }
+                Console.WriteLine();
+            }
+        }
     }
-    
-   
-  
 }
